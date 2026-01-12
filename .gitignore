@@ -1,0 +1,27 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+
+venv/
+
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+.env
+
+
+.idea/
+*.swp
+
+ml_models/*.pkl
+resume_dataset/
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
