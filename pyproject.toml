@@ -1,0 +1,19 @@
+[project]
+name = "api-de-classification-de-cv-rh-tech"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "django==4.2",
+    "djangorestframework>=3.16.1",
+    "djangorestframework-simplejwt>=5.5.1",
+    "drf-yasg>=1.21.11",
+    "joblib>=1.5.3",
+    "kaggle>=1.8.3",
+    "pandas>=2.3.3",
+    "pypdf2>=3.0.1",
+    "python-docx>=1.2.0",
+    "scikit-learn>=1.8.0",
+    "unzip>=1.0.0",
+]
