@@ -1,11 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from .ml_classifier import cv_classifier
 from rest_framework.permissions import IsAuthenticated
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import MultinomialNB
-import pickle
 import os
 
 from . import serializers
@@ -14,7 +10,7 @@ from .serializers import (
     ResumeSerializer, CategorySerializer,
     ClassificationSerializer, JobPostingSerializer
 )
-from .utils import extract_text, extract_skills
+from .utils import extract_text, extract_skills as utils_extract_skills
 
 
 class ResumeViewSet(viewsets.ModelViewSet):
@@ -39,8 +35,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
             })
 
     @action(detail=True, methods=['post'], url_path='classify')
-    def classify(self, request, pk=None):
-
+    def classify(self, request, pk=None, cv_classifier=None):
         resume = self.get_object()
 
         # Vérifier que le texte a été extrait
@@ -51,24 +46,8 @@ class ResumeViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            model_path = 'ml_models/resume_classifier.pkl'
-            vectorizer_path = 'ml_models/vectorizer.pkl'
-
-            if not os.path.exists(model_path):
-                return Response(
-                    {'error': 'Modèle ML non trouvé. Téléchargez-le depuis Kaggle.'},
-                    status=status.HTTP_503_SERVICE_UNAVAILABLE
-                )
-
-            with open(model_path, 'rb') as f:
-                model = pickle.load(f)
-            with open(vectorizer_path, 'rb') as f:
-                vectorizer = pickle.load(f)
-
-            # Prédire la catégorie
-            X = vectorizer.transform([resume.text_content])
-            predicted_category = model.predict(X)[0]
-            confidence = max(model.predict_proba(X)[0])
+            # Utiliser le modèle pré-entraîné
+            predicted_category, confidence = cv_classifier.predict(resume.text_content)
 
             # Créer ou récupérer la catégorie
             category, _ = Category.objects.get_or_create(
@@ -94,7 +73,6 @@ class ResumeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], url_path='by-category')
     def by_category(self, request):
-
         category_name = request.query_params.get('category')
 
         if not category_name:
@@ -102,7 +80,6 @@ class ResumeViewSet(viewsets.ModelViewSet):
                 {'error': 'Paramètre "category" requis'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
 
         classifications = Classification.objects.filter(
             category__name__iexact=category_name
@@ -130,8 +107,7 @@ class ResumeViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['get'], url_path='extract-skills')
-    def extract_skills(self, request, pk=None):
-
+    def get_resume_skills(self, request, pk=None):
         resume = self.get_object()
 
         if not resume.text_content:
@@ -141,27 +117,10 @@ class ResumeViewSet(viewsets.ModelViewSet):
             )
 
         # Extraire les compétences
-        skills = extract_skills(resume.text_content)
+        skills = utils_extract_skills(resume.text_content)
 
         return Response({
             'resume_id': resume.id,
             'skills_found': len(skills),
             'skills': sorted(skills)
         })
-
-@action(detail=True, methods=['post'], url_path='classify')
-def classify(self, request, pk=None):
-    resume = self.get_object()
-    
-    # Utiliser le modèle pré-entraîné
-    predicted_category, confidence = cv_classifier.predict(resume.text_content)
-    
-    # Sauvegarder la classification
-    category, _ = Category.objects.get_or_create(name=predicted_category)
-    classification = Classification.objects.create(
-        resume=resume,
-        category=category,
-        confidence_score=confidence
-    )
-    
-    return Response(ClassificationSerializer(classification).data)
