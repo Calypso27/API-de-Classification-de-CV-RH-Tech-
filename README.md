@@ -15,7 +15,7 @@ API REST pour classifier automatiquement des CV par secteur d'activité (Python 
 
 ```bash
 # Cloner le projet
-git clone https://github.com/votre-username/API-de-Classification-de-CV-RH-Tech.git
+git clone https://github.com/votre-username/API-de-Classification-de-CV-RH-Tech-.git
 cd API-de-Classification-de-CV-RH-Tech
 
 # Créer l'environnement virtuel
