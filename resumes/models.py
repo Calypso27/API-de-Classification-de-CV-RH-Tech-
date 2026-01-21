@@ -9,6 +9,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
+        ordering = ['name']
 
     def __str__(self):
         return self.name
@@ -16,9 +17,12 @@ class Category(models.Model):
 
 class Resume(models.Model):
     file = models.FileField(upload_to='resumes/')
-    text_content = models.TextField(blank=True)
+    text_content = models.TextField(blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='resumes')
+
+    class Meta:
+        ordering = ['-uploaded_at']
 
     def __str__(self):
         return f"CV de {self.user.username} - {self.uploaded_at}"
@@ -43,6 +47,9 @@ class JobPosting(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.title

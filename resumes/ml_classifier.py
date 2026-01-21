@@ -43,3 +43,6 @@ class CVClassifier:
             return list(self.model.classes_)
         return []
 
+
+# Instance globale du classifier
+cv_classifier = CVClassifier()

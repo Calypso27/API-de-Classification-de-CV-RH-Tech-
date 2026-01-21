@@ -1,27 +1,22 @@
+# Python
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-.Python
-*.egg-info/
 
-venv/
+# Virtual environment
+.venv/
 
-*.log
+# Django
 db.sqlite3
 media/
-staticfiles/
 
+# Environment
 .env
 
-
-.idea/
-*.swp
-
+# ML models & datasets
 ml_models/*.pkl
 resume_dataset/
 *.csv
 
-# OS
-.DS_Store
-Thumbs.db
+# IDE
+.idea/
+.vscode/
